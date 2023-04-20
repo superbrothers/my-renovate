@@ -1,0 +1,61 @@
+name: Renovate
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths: [.github/workflows/renovate.yaml]
+  schedule:
+  - cron: '0 */12 * * *'
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      RENOVATE_ALLOW_POST_UPGRADE_COMMAND_TEMPLATING:
+        description: "Set to 'true' to allow templating of dependency level post-upgrade commands."
+        required: false
+        default: "false"
+        type: string
+      RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS:
+        description: "A list of regular expressions that decide which commands in postUpgradeTasks are allowed to run. If this list is empty then no tasks will be executed."
+        required: false
+        default: ""
+        type: string
+
+concurrency: renovate
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Validate Renovate config
+      run: |
+        docker run -v "${PWD}:/app" -w /app docker.io/renovate/renovate:latest renovate-config-validator
+    - name: Get token
+      uses: tibdex/github-app-token@v1
+      id: get_token
+      with:
+        app_id: ${{ secrets.APP_ID }}
+        private_key: ${{ secrets.PRIVATE_KEY }}
+    - name: Run renovate
+      run: |
+       docker run \
+         -e RENOVATE_REPOSITORIES \
+         -e RENOVATE_USERNAME \
+         -e RENOVATE_GIT_AUTHOR \
+         -e RENOVATE_ALLOW_POST_UPGRADE_COMMAND_TEMPLATING \
+         -e RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS \
+         -e RENOVATE_TOKEN \
+         -v /var/run/docker.sock:/var/run/docker.sock \
+         -v /usr/libexec/docker/cli-plugins:/usr/libexec/docker/cli-plugins \
+         -v /tmp:/tmp \
+         -u "1000:$(getent group docker | awk -F: '{print $3}')" \
+         docker.io/renovate/renovate:latest
+      env:
+        RENOVATE_REPOSITORIES: ${{ github.repository }}
+        RENOVATE_USERNAME: "my-own-renovate[bot]"
+        RENOVATE_GIT_AUTHOR: "my-own-renovate <131369181+self-hosted-renovate[bot]@users.noreply.github.com>"
+        RENOVATE_ALLOW_POST_UPGRADE_COMMAND_TEMPLATING: ${{ inputs.RENOVATE_ALLOW_POST_UPGRADE_COMMAND_TEMPLATING || 'false' }}
+        RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS: ${{ inputs.RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS || '' }}
+        RENOVATE_TOKEN: ${{ steps.get_token.outputs.token }}
+        RENOVATE_GIT: ${{ steps.get_token.outputs.token }}
