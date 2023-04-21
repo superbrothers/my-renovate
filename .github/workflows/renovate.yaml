@@ -63,6 +63,8 @@ jobs:
          -e RENOVATE_GIT_AUTHOR \
          -e RENOVATE_ALLOW_POST_UPGRADE_COMMAND_TEMPLATING \
          -e RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS \
+         -e RENOVATE_DRY_RUN \
+         -e RENOVATE_BASE_BRANCHES \
          -e RENOVATE_TOKEN \
          -v /var/run/docker.sock:/var/run/docker.sock \
          -v /usr/libexec/docker/cli-plugins:/usr/libexec/docker/cli-plugins \
