@@ -1,0 +1,5 @@
+{
+  "extends": ["config:base"],
+  "labels": ["renovate"],
+  "enabledManagers": ["github-actions"]
+}
