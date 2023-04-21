@@ -1,5 +1,14 @@
 {
   "extends": ["config:base"],
   "labels": ["renovate"],
-  "enabledManagers": ["github-actions"]
+  "enabledManagers": ["regex", "github-actions"],
+  "regexManagers": [
+    {
+      "description": "Update `_VERSION:` variables in github workflows",
+      "fileMatch": ["^\\.github/workflows/[^/]+\\.yaml$"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.+?) depName=(?<depName>.+?)(?: (?:packageName|lookupName)=(?<packageName>.+?))?(?: versioning=(?<versioning>.+?))?\\s*[A-Z_]+?_VERSION: \"(?<currentValue>.+?)\"\\s"
+      ]
+    }
+  ]
 }
