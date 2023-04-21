@@ -25,12 +25,31 @@ concurrency: renovate
 jobs:
   run:
     runs-on: ubuntu-latest
+    env:
+      RENOVATE_TAG: "35.54"
+      RENOVATE_CACHE_PATH: renovate-image
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+    - name: Cache a renovate image
+      id: cache-renovate
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.RENOVATE_CACHE_PATH }}
+        key: ${{ runner.os }}-renovate-image-${{ env.RENOVATE_TAG }}
+        restore-keys: ${{ runner.os }}-renovate-image-
+    - name: Pull and save a renovate image
+      if: steps.cache-renovate.outputs.cache-hit != 'true'
+      run: |
+        docker pull "docker.io/renovate/renovate:${RENOVATE_TAG}"
+        docker save "docker.io/renovate/renovate:${RENOVATE_TAG}" -o "$RENOVATE_CACHE_PATH"
+    - name: Load a renovate image
+      run: |
+        docker load -i "$RENOVATE_CACHE_PATH"
+        docker pull "docker.io/renovate/renovate:${RENOVATE_TAG}"
     - name: Validate Renovate config
       run: |
-        docker run -v "${PWD}:/app" -w /app docker.io/renovate/renovate:latest renovate-config-validator
+        docker run -v "${PWD}:/app" -w /app "docker.io/renovate/renovate:${RENOVATE_TAG}" renovate-config-validator
     - name: Get token
       uses: tibdex/github-app-token@v1
       id: get_token
@@ -50,7 +69,7 @@ jobs:
          -v /usr/libexec/docker/cli-plugins:/usr/libexec/docker/cli-plugins \
          -v /tmp:/tmp \
          -u "1000:$(getent group docker | awk -F: '{print $3}')" \
-         docker.io/renovate/renovate:latest
+         "docker.io/renovate/renovate:${RENOVATE_TAG}"
       env:
         RENOVATE_REPOSITORIES: ${{ github.repository }}
         RENOVATE_USERNAME: "my-own-renovate[bot]"
