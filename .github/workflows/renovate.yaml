@@ -30,8 +30,6 @@ jobs:
       RENOVATE_VERSION: "35.55"
       RENOVATE_CACHE_PATH: renovate-image
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
     - name: Cache a renovate image
       id: cache-renovate
       uses: actions/cache@v3
@@ -77,5 +75,7 @@ jobs:
         RENOVATE_GIT_AUTHOR: "my-own-renovate <131369181+self-hosted-renovate[bot]@users.noreply.github.com>"
         RENOVATE_ALLOW_POST_UPGRADE_COMMAND_TEMPLATING: ${{ inputs.RENOVATE_ALLOW_POST_UPGRADE_COMMAND_TEMPLATING || 'false' }}
         RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS: ${{ inputs.RENOVATE_ALLOWED_POST_UPGRADE_COMMANDS || '' }}
+        RENOVATE_DRY_RUN: ${{ github.event.pull_request && 'full' || null }}
+        RENOVATE_BASE_BRANCHES: ${{ github.head_ref || '' }}
         RENOVATE_TOKEN: ${{ steps.get_token.outputs.token }}
         RENOVATE_GIT: ${{ steps.get_token.outputs.token }}
