@@ -1,6 +1,8 @@
 name: Renovate
 
 on:
+  push:
+    branches: [master]
   pull_request:
     types: [opened, synchronize]
     paths: [.github/workflows/renovate.yaml]
@@ -25,25 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # renovate: datasource=docker depName=renovate/renovate versioning=docker
-      RENOVATE_VERSION: "35.59"
-      RENOVATE_CACHE_PATH: renovate-image
+      RENOVATE_VERSION: "35"
     steps:
-    - name: Cache a renovate image
-      id: cache-renovate
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.RENOVATE_CACHE_PATH }}
-        key: ${{ runner.os }}-renovate-image-${{ env.RENOVATE_VERSION }}
-        restore-keys: ${{ runner.os }}-renovate-image-
-    - name: Pull and save a renovate image
-      if: steps.cache-renovate.outputs.cache-hit != 'true'
-      run: |
-        docker pull "docker.io/renovate/renovate:${RENOVATE_VERSION}"
-        docker save "docker.io/renovate/renovate:${RENOVATE_VERSION}" -o "$RENOVATE_CACHE_PATH"
-    - name: Load a renovate image
-      run: |
-        docker load -i "$RENOVATE_CACHE_PATH"
-        docker pull "docker.io/renovate/renovate:${RENOVATE_VERSION}"
     - name: Validate Renovate config
       run: |
         docker run -v "${PWD}:/app" -w /app "docker.io/renovate/renovate:${RENOVATE_VERSION}" renovate-config-validator
