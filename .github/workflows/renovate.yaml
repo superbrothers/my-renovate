@@ -24,6 +24,7 @@ jobs:
       # renovate: datasource=docker depName=renovate/renovate versioning=docker
       RENOVATE_VERSION: "36"
     steps:
+    - uses: actions/checkout@v3
     - name: Validate Renovate config
       run: |
         docker run -v "${PWD}:/app" -w /app "docker.io/renovate/renovate:${RENOVATE_VERSION}" renovate-config-validator
