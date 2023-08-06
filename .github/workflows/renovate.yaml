@@ -63,4 +63,5 @@ jobs:
         RENOVATE_DRY_RUN: ${{ github.event.pull_request && 'full' || null }}
         RENOVATE_BASE_BRANCHES: ${{ github.head_ref || '' }}
         RENOVATE_TOKEN: ${{ steps.get_token.outputs.token }}
+        RENOVATE_GIT: ${{ steps.get_token.outputs.token }}
         LOG_LEVEL: ${{ inputs.LOG_LEVEL || 'info' }}
