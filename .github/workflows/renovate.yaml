@@ -33,8 +33,7 @@ jobs:
     - name: Validate Renovate config
       run: |
         docker run -v "${PWD}:/app" -w /app "docker.io/renovate/renovate:${RENOVATE_VERSION}" renovate-config-validator
-    - name: Get token
-      uses: tibdex/github-app-token@v1
+    - uses: actions/create-github-app-token@v1
       id: get_token
       with:
         app_id: ${{ secrets.APP_ID }}
