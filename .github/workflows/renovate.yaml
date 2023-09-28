@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # renovate: datasource=docker depName=renovate/renovate versioning=docker
-      RENOVATE_VERSION: "36"
+      RENOVATE_VERSION: "37"
     steps:
     - uses: actions/checkout@v4
     - name: Validate Renovate config
